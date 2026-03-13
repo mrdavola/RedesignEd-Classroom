@@ -123,7 +123,7 @@ export function StepResults() {
 
   // Generate images for each option
   useEffect(() => {
-    if (!result) return;
+    if (!result?.options) return;
 
     result.options.forEach((option, index) => {
       if (images[index]) return;
