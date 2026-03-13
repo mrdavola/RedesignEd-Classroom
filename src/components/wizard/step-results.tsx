@@ -30,7 +30,7 @@ const colorMap: Record<string, { border: string; bg: string; text: string; accen
   blue: { border: "border-blue-300", bg: "bg-blue-50", text: "text-blue-700", accent: "bg-blue-500" },
 };
 
-const toolLabels: Record<ToolType, { label: string; icon: typeof FileText }> = {
+const toolLabels: Partial<Record<ToolType, { label: string; icon: typeof FileText }>> = {
   grant: { label: "Write a Grant", icon: FileText },
   norms: { label: "Generate Norms", icon: Scale },
   lesson: { label: "Adapt a Lesson", icon: BookOpen },
@@ -291,7 +291,7 @@ export function StepResults() {
               {/* Action bar */}
               <div className="flex flex-wrap gap-2 px-6 pb-5 relative">
                 {(Object.keys(toolLabels) as ToolType[]).map((type) => {
-                  const tool = toolLabels[type];
+                  const tool = toolLabels[type]!;
                   const Icon = tool.icon;
                   return (
                     <Button
@@ -360,7 +360,7 @@ export function StepResults() {
           setSlideOver((prev) => ({ ...prev, open: false }));
           setToolContent(null);
         }}
-        title={`${toolLabels[slideOver.type].label} — ${slideOver.layoutTitle}`}
+        title={`${toolLabels[slideOver.type]?.label ?? slideOver.type} — ${slideOver.layoutTitle}`}
         footer={
           toolContent ? (
             <Button variant="secondary" onClick={handleCopy} className="w-full">
