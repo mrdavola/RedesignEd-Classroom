@@ -11,6 +11,7 @@ import type { Inventory } from "@/types";
 export function StepInventory() {
   const { state, setState, nextStep, prevStep } = useWizard();
   const [scanning, setScanning] = useState(false);
+  const [scanError, setScanError] = useState<string | null>(null);
 
   // If there's an image, attempt to scan it for inventory
   useEffect(() => {
@@ -18,13 +19,17 @@ export function StepInventory() {
 
     let cancelled = false;
     setScanning(true);
+    setScanError(null);
 
     fetch("/api/scan-inventory", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ base64Image: state.image }),
     })
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) throw new Error(`${res.status}`);
+        return res.json();
+      })
       .then((data: Partial<Inventory>) => {
         if (cancelled) return;
         setState((prev) => ({
@@ -33,7 +38,7 @@ export function StepInventory() {
         }));
       })
       .catch(() => {
-        // Scan failed — keep defaults
+        if (!cancelled) setScanError("Couldn\u2019t auto-detect furniture from your photo. Adjust the counts manually below.");
       })
       .finally(() => {
         if (!cancelled) setScanning(false);
@@ -85,6 +90,12 @@ export function StepInventory() {
           Zero Budget Constraint
         </span>
       </div>
+
+      {scanError && (
+        <p className="text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-4 py-2 text-sm">
+          {scanError}
+        </p>
+      )}
 
       {/* Big Items */}
       <section>

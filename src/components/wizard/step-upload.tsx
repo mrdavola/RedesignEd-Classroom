@@ -6,23 +6,50 @@ import { Camera } from "lucide-react";
 import { useWizard } from "@/lib/store/wizard-context";
 import { Button } from "@/components/ui/button";
 
+const MAX_DIMENSION = 1200;
+const JPEG_QUALITY = 0.7;
+
+/** Resize image to fit within MAX_DIMENSION and return a compressed base64 JPEG */
+function compressImage(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      let { width, height } = img;
+      if (width > MAX_DIMENSION || height > MAX_DIMENSION) {
+        const ratio = Math.min(MAX_DIMENSION / width, MAX_DIMENSION / height);
+        width = Math.round(width * ratio);
+        height = Math.round(height * ratio);
+      }
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d")!;
+      ctx.drawImage(img, 0, 0, width, height);
+      resolve(canvas.toDataURL("image/jpeg", JPEG_QUALITY));
+    };
+    img.onerror = reject;
+    img.src = URL.createObjectURL(file);
+  });
+}
+
 export function StepUpload() {
   const { state, setState, nextStep } = useWizard();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [preview, setPreview] = useState<string | null>(state.image);
+  const [error, setError] = useState<string | null>(null);
 
   const handleFile = useCallback(
-    (file: File) => {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const base64 = reader.result as string;
+    async (file: File) => {
+      setError(null);
+      try {
+        const base64 = await compressImage(file);
         setPreview(base64);
         setState((prev) => ({ ...prev, image: base64 }));
-        // Brief delay so user sees the preview before advancing
         setTimeout(() => nextStep(), 800);
-      };
-      reader.readAsDataURL(file);
+      } catch {
+        setError("Could not process that image. Please try a different file.");
+      }
     },
     [setState, nextStep],
   );
@@ -118,6 +145,10 @@ export function StepUpload() {
         onChange={handleFileSelect}
         className="hidden"
       />
+
+      {error && (
+        <p className="text-red-600 text-sm font-medium">{error}</p>
+      )}
 
       {/* Divider */}
       <div className="flex items-center gap-4 w-full max-w-md">

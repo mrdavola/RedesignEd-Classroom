@@ -18,13 +18,13 @@ const steps = [
 const stepComponents = [StepUpload, StepInventory, StepTeachingStyle, StepResults];
 
 export function WizardShell() {
-  const { state } = useWizard();
+  const { state, goToStep } = useWizard();
   const StepComponent = stepComponents[state.step] ?? StepUpload;
 
   return (
     <div className="w-full max-w-4xl mx-auto px-4 py-8">
       <div className="mb-8 px-4">
-        <StepIndicator steps={steps} currentStep={state.step} />
+        <StepIndicator steps={steps} currentStep={state.step} onStepClick={goToStep} />
       </div>
 
       <AnimatePresence mode="wait">

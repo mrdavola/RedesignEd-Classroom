@@ -20,6 +20,7 @@ interface Step {
 interface StepIndicatorProps {
   steps: Step[];
   currentStep: number;
+  onStepClick?: (step: number) => void;
 }
 
 const iconMap: Record<string, LucideIcon> = {
@@ -32,12 +33,13 @@ const iconMap: Record<string, LucideIcon> = {
   Check,
 };
 
-export function StepIndicator({ steps, currentStep }: StepIndicatorProps) {
+export function StepIndicator({ steps, currentStep, onStepClick }: StepIndicatorProps) {
   return (
     <div className="flex items-center w-full">
       {steps.map((step, index) => {
         const isCompleted = index < currentStep;
         const isCurrent = index === currentStep;
+        const isClickable = onStepClick && (isCompleted || isCurrent);
         const Icon = isCompleted
           ? Check
           : iconMap[step.icon] ?? Camera;
@@ -45,7 +47,12 @@ export function StepIndicator({ steps, currentStep }: StepIndicatorProps) {
         return (
           <div key={step.label} className="flex items-center flex-1 last:flex-none">
             {/* Step circle */}
-            <div className="flex flex-col items-center">
+            <button
+              type="button"
+              disabled={!isClickable}
+              onClick={() => isClickable && onStepClick(index)}
+              className={`flex flex-col items-center ${isClickable ? "cursor-pointer" : "cursor-default"}`}
+            >
               <motion.div
                 initial={false}
                 animate={{
@@ -80,7 +87,7 @@ export function StepIndicator({ steps, currentStep }: StepIndicatorProps) {
               >
                 {step.label}
               </span>
-            </div>
+            </button>
 
             {/* Connecting line */}
             {index < steps.length - 1 && (
