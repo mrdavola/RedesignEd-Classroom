@@ -1,12 +1,28 @@
 import { NextRequest, NextResponse } from "next/server";
-import { runTool } from "@/lib/ai/claude";
+import { runTool, runStructuredTool } from "@/lib/ai/claude";
 import type { ToolType, WizardState } from "@/types";
+
+const STRUCTURED_TOOLS: ToolType[] = [
+  "dna",
+  "philosopher-critique",
+  "movement-heatmap",
+  "budget-optimizer",
+  "seasonal-calendar",
+  "principal-email",
+  "seat-perspective",
+  "sound-zones",
+];
 
 export async function POST(req: NextRequest) {
   try {
     const { type, context, state } = (await req.json()) as {
       type: ToolType;
-      context: { layoutTitle: string; layoutContext: string; topic?: string };
+      context: {
+        layoutTitle: string;
+        layoutContext: string;
+        topic?: string;
+        educator?: string;
+      };
       state: WizardState;
     };
 
@@ -15,6 +31,11 @@ export async function POST(req: NextRequest) {
         { error: "type, context, and state are required" },
         { status: 400 },
       );
+    }
+
+    if (STRUCTURED_TOOLS.includes(type)) {
+      const data = await runStructuredTool(type, context, state);
+      return NextResponse.json({ data });
     }
 
     const content = await runTool(type, context, state);
