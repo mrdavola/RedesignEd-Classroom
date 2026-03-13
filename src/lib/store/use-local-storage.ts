@@ -16,7 +16,11 @@ export function useLocalStorage<T>(key: string, initialValue: T): [T, (value: T 
   const setValue = (value: T | ((prev: T) => T)) => {
     const valueToStore = value instanceof Function ? value(stored) : value;
     setStored(valueToStore);
-    window.localStorage.setItem(key, JSON.stringify(valueToStore));
+    try {
+      window.localStorage.setItem(key, JSON.stringify(valueToStore));
+    } catch {
+      // QuotaExceededError — skip persistence silently
+    }
   };
 
   return [stored, setValue];

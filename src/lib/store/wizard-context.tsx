@@ -1,5 +1,5 @@
 "use client";
-import { createContext, useContext, ReactNode } from "react";
+import { createContext, useContext, useRef, useCallback, ReactNode } from "react";
 import { useLocalStorage } from "./use-local-storage";
 import { WizardState, Inventory, AnalysisResult } from "@/types";
 
@@ -37,8 +37,30 @@ interface WizardContextType {
 const WizardContext = createContext<WizardContextType | null>(null);
 
 export function WizardProvider({ children }: { children: ReactNode }) {
-  const [state, setState] = useLocalStorage<WizardState>("wizard-state", DEFAULT_STATE);
+  const [persisted, setPersisted] = useLocalStorage<Omit<WizardState, "image">>(
+    "wizard-state",
+    { step: 0, inventory: DEFAULT_INVENTORY, learnerProfile: "UPK", philosophy: "Flexible", goals: "" },
+  );
   const [result, setResult] = useLocalStorage<AnalysisResult | null>("wizard-result", null);
+
+  // Keep the image in memory only — it's too large for localStorage
+  const imageRef = useRef<string | null>(null);
+
+  const state: WizardState = { ...persisted, image: imageRef.current };
+
+  const setState = useCallback(
+    (value: WizardState | ((prev: WizardState) => WizardState)) => {
+      setPersisted((prev) => {
+        const full: WizardState = { ...prev, image: imageRef.current };
+        const next = value instanceof Function ? value(full) : value;
+        imageRef.current = next.image;
+        // Strip image before persisting to localStorage
+        const { image: _, ...rest } = next;
+        return rest as Omit<WizardState, "image">;
+      });
+    },
+    [setPersisted],
+  );
 
   const nextStep = () => setState((prev) => ({ ...prev, step: Math.min(prev.step + 1, 3) }));
   const prevStep = () => setState((prev) => ({ ...prev, step: Math.max(prev.step - 1, 0) }));
