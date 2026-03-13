@@ -12,6 +12,14 @@ import {
   Check as CheckIcon,
   ClipboardCopy,
   ArrowRight,
+  Fingerprint,
+  User,
+  MapPin,
+  DollarSign,
+  Calendar,
+  Mail,
+  Eye,
+  Volume2,
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { useWizard } from "@/lib/store/wizard-context";
@@ -19,7 +27,26 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SlideOver } from "@/components/ui/slide-over";
 import { Card } from "@/components/ui/card";
-import type { ToolType, LayoutOption } from "@/types";
+import { ClassroomDnaView } from "@/components/tools/classroom-dna";
+import { PhilosopherCritiqueView } from "@/components/tools/philosopher-critique";
+import { MovementHeatmapView } from "@/components/tools/movement-heatmap";
+import { BudgetOptimizerView } from "@/components/tools/budget-optimizer";
+import { SeasonalCalendarView } from "@/components/tools/seasonal-calendar";
+import { PrincipalEmailView } from "@/components/tools/principal-email";
+import { SeatPerspectiveView } from "@/components/tools/seat-perspective";
+import { SoundZonesView } from "@/components/tools/sound-zones";
+import type {
+  ToolType,
+  LayoutOption,
+  ClassroomDNA,
+  PhilosopherCritique,
+  MovementHeatmapData,
+  BudgetOptimizer,
+  SeasonalCalendar,
+  PrincipalEmail,
+  SeatPerspective,
+  SoundZonesData,
+} from "@/types";
 
 const colorMap: Record<string, { border: string; bg: string; text: string; accent: string }> = {
   green: { border: "border-green-300", bg: "bg-green-50", text: "text-green-700", accent: "bg-green-500" },
@@ -30,11 +57,44 @@ const colorMap: Record<string, { border: string; bg: string; text: string; accen
   blue: { border: "border-blue-300", bg: "bg-blue-50", text: "text-blue-700", accent: "bg-blue-500" },
 };
 
-const toolLabels: Partial<Record<ToolType, { label: string; icon: typeof FileText }>> = {
-  grant: { label: "Write a Grant", icon: FileText },
-  norms: { label: "Generate Norms", icon: Scale },
-  lesson: { label: "Adapt a Lesson", icon: BookOpen },
+const STRUCTURED_TOOLS: ToolType[] = [
+  "dna",
+  "philosopher-critique",
+  "movement-heatmap",
+  "budget-optimizer",
+  "seasonal-calendar",
+  "principal-email",
+  "seat-perspective",
+  "sound-zones",
+];
+
+const WIDE_TOOLS: ToolType[] = [
+  "movement-heatmap",
+  "seat-perspective",
+  "sound-zones",
+];
+
+interface ToolConfig {
+  label: string;
+  icon: typeof FileText;
+  group: string;
+}
+
+const toolConfig: Record<ToolType, ToolConfig> = {
+  grant: { label: "Write a Grant", icon: FileText, group: "Create" },
+  norms: { label: "Generate Norms", icon: Scale, group: "Create" },
+  lesson: { label: "Adapt a Lesson", icon: BookOpen, group: "Create" },
+  dna: { label: "Classroom DNA", icon: Fingerprint, group: "Analyze" },
+  "movement-heatmap": { label: "Movement Map", icon: MapPin, group: "Analyze" },
+  "seat-perspective": { label: "Seat Perspective", icon: Eye, group: "Analyze" },
+  "sound-zones": { label: "Sound Zones", icon: Volume2, group: "Analyze" },
+  "budget-optimizer": { label: "The $200 Question", icon: DollarSign, group: "Plan" },
+  "seasonal-calendar": { label: "Seasonal Calendar", icon: Calendar, group: "Plan" },
+  "principal-email": { label: "Email Principal", icon: Mail, group: "Communicate" },
+  "philosopher-critique": { label: "Philosopher Critique", icon: User, group: "Communicate" },
 };
+
+const toolGroups = ["Analyze", "Plan", "Communicate", "Create"];
 
 interface SlideOverState {
   open: boolean;
@@ -53,10 +113,13 @@ export function StepResults() {
     layoutContext: "",
   });
   const [toolContent, setToolContent] = useState<string | null>(null);
+  const [toolData, setToolData] = useState<unknown>(null);
   const [toolLoading, setToolLoading] = useState(false);
   const [copied, setCopied] = useState(false);
   const [lessonTopic, setLessonTopic] = useState("");
   const [lessonPromptIndex, setLessonPromptIndex] = useState<number | null>(null);
+  const [selectedEducator, setSelectedEducator] = useState("Maria Montessori");
+  const [educatorPromptIndex, setEducatorPromptIndex] = useState<number | null>(null);
 
   // Generate images for each option
   useEffect(() => {
@@ -97,9 +160,13 @@ export function StepResults() {
 
   const openTool = useCallback(
     async (type: ToolType, option: LayoutOption) => {
-      // For lesson tool, show topic prompt first
       if (type === "lesson") {
         setLessonPromptIndex(result?.options.indexOf(option) ?? null);
+        return;
+      }
+
+      if (type === "philosopher-critique") {
+        setEducatorPromptIndex(result?.options.indexOf(option) ?? null);
         return;
       }
 
@@ -110,6 +177,7 @@ export function StepResults() {
         layoutContext: option.why,
       });
       setToolContent(null);
+      setToolData(null);
       setToolLoading(true);
 
       try {
@@ -125,8 +193,13 @@ export function StepResults() {
             state,
           }),
         });
-        const data = await res.json();
-        setToolContent(data.content ?? data.result ?? "No content returned.");
+        const json = await res.json();
+
+        if (STRUCTURED_TOOLS.includes(type)) {
+          setToolData(json.data);
+        } else {
+          setToolContent(json.content ?? json.result ?? "No content returned.");
+        }
       } catch {
         setToolContent("Something went wrong. Please try again.");
       } finally {
@@ -169,6 +242,42 @@ export function StepResults() {
     } finally {
       setToolLoading(false);
       setLessonTopic("");
+    }
+  };
+
+  const handleEducatorSubmit = async (option: LayoutOption) => {
+    setEducatorPromptIndex(null);
+
+    setSlideOver({
+      open: true,
+      type: "philosopher-critique",
+      layoutTitle: option.title,
+      layoutContext: option.why,
+    });
+    setToolContent(null);
+    setToolData(null);
+    setToolLoading(true);
+
+    try {
+      const res = await fetch("/api/tools", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: "philosopher-critique" as ToolType,
+          context: {
+            layoutTitle: option.title,
+            layoutContext: option.why,
+            educator: selectedEducator,
+          },
+          state,
+        }),
+      });
+      const json = await res.json();
+      setToolData(json.data);
+    } catch {
+      setToolContent("Something went wrong. Please try again.");
+    } finally {
+      setToolLoading(false);
     }
   };
 
@@ -289,20 +398,32 @@ export function StepResults() {
               </div>
 
               {/* Action bar */}
-              <div className="flex flex-wrap gap-2 px-6 pb-5 relative">
-                {(Object.keys(toolLabels) as ToolType[]).map((type) => {
-                  const tool = toolLabels[type]!;
-                  const Icon = tool.icon;
+              <div className="px-6 pb-5 space-y-3 relative">
+                {toolGroups.map((group) => {
+                  const groupTools = (Object.entries(toolConfig) as [ToolType, ToolConfig][])
+                    .filter(([, cfg]) => cfg.group === group);
                   return (
-                    <Button
-                      key={type}
-                      variant="secondary"
-                      size="sm"
-                      onClick={() => openTool(type, option)}
-                    >
-                      <Icon className="w-4 h-4 mr-1.5" />
-                      {tool.label}
-                    </Button>
+                    <div key={group}>
+                      <p className="text-xs font-semibold text-stone-400 uppercase tracking-wide mb-1.5">
+                        {group}
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        {groupTools.map(([type, cfg]) => {
+                          const Icon = cfg.icon;
+                          return (
+                            <Button
+                              key={type}
+                              variant="secondary"
+                              size="sm"
+                              onClick={() => openTool(type, option)}
+                            >
+                              <Icon className="w-4 h-4 mr-1.5" />
+                              {cfg.label}
+                            </Button>
+                          );
+                        })}
+                      </div>
+                    </div>
                   );
                 })}
 
@@ -311,7 +432,7 @@ export function StepResults() {
                   <motion.div
                     initial={{ opacity: 0, y: -4 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="flex items-center gap-2 w-full mt-2"
+                    className="flex items-center gap-2 w-full"
                   >
                     <input
                       type="text"
@@ -330,6 +451,36 @@ export function StepResults() {
                       size="sm"
                       onClick={() => handleLessonSubmit(option)}
                       disabled={!lessonTopic.trim()}
+                    >
+                      <ArrowRight className="w-4 h-4" />
+                    </Button>
+                  </motion.div>
+                )}
+
+                {/* Educator selector */}
+                {educatorPromptIndex === index && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="flex items-center gap-2 w-full"
+                  >
+                    <select
+                      value={selectedEducator}
+                      onChange={(e) => setSelectedEducator(e.target.value)}
+                      className="flex-1 rounded-lg border border-stone-200 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-rose-800 bg-white"
+                    >
+                      {["Maria Montessori", "John Dewey", "Paulo Freire", "Loris Malaguzzi", "Lev Vygotsky", "bell hooks"].map(
+                        (name) => (
+                          <option key={name} value={name}>
+                            {name}
+                          </option>
+                        ),
+                      )}
+                    </select>
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      onClick={() => handleEducatorSubmit(option)}
                     >
                       <ArrowRight className="w-4 h-4" />
                     </Button>
@@ -359,10 +510,12 @@ export function StepResults() {
         onClose={() => {
           setSlideOver((prev) => ({ ...prev, open: false }));
           setToolContent(null);
+          setToolData(null);
         }}
-        title={`${toolLabels[slideOver.type]?.label ?? slideOver.type} — ${slideOver.layoutTitle}`}
+        title={`${toolConfig[slideOver.type]?.label ?? slideOver.type} — ${slideOver.layoutTitle}`}
+        size={WIDE_TOOLS.includes(slideOver.type) ? "wide" : "default"}
         footer={
-          toolContent ? (
+          toolContent && !STRUCTURED_TOOLS.includes(slideOver.type) ? (
             <Button variant="secondary" onClick={handleCopy} className="w-full">
               {copied ? (
                 <>
@@ -384,6 +537,17 @@ export function StepResults() {
             <Loader2 className="w-6 h-6 text-rose-700 animate-spin" />
             <p className="text-sm text-stone-500">Generating content...</p>
           </div>
+        ) : toolData && STRUCTURED_TOOLS.includes(slideOver.type) ? (
+          <>
+            {slideOver.type === "dna" && <ClassroomDnaView data={toolData as ClassroomDNA} />}
+            {slideOver.type === "philosopher-critique" && <PhilosopherCritiqueView data={toolData as PhilosopherCritique} />}
+            {slideOver.type === "movement-heatmap" && <MovementHeatmapView data={toolData as MovementHeatmapData} />}
+            {slideOver.type === "budget-optimizer" && <BudgetOptimizerView data={toolData as BudgetOptimizer} />}
+            {slideOver.type === "seasonal-calendar" && <SeasonalCalendarView data={toolData as SeasonalCalendar} />}
+            {slideOver.type === "principal-email" && <PrincipalEmailView data={toolData as PrincipalEmail} />}
+            {slideOver.type === "seat-perspective" && <SeatPerspectiveView data={toolData as SeatPerspective} />}
+            {slideOver.type === "sound-zones" && <SoundZonesView data={toolData as SoundZonesData} />}
+          </>
         ) : toolContent ? (
           <div className="prose prose-sm prose-stone max-w-none">
             <ReactMarkdown>{toolContent}</ReactMarkdown>
