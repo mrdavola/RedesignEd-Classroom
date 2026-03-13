@@ -17,11 +17,12 @@ body {
     color: black !important;
   }
 
-  /* Hide interactive UI */
+  /* Hide site chrome and interactive UI */
+  .site-header,
+  .site-footer,
   button,
   [data-print-hide],
-  .step-indicator,
-  nav {
+  .step-indicator {
     display: none !important;
   }
 
