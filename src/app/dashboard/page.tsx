@@ -7,7 +7,7 @@ import { ArrowRight, Layout, Plus } from "lucide-react";
 export default function DashboardPage() {
   const { state, result } = useWizard();
 
-  const hasDesign = result !== null && result.options.length > 0;
+  const hasDesign = result !== null && result.options?.length > 0;
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-10 md:py-16">
@@ -51,7 +51,7 @@ export default function DashboardPage() {
               <div className="flex justify-between text-sm">
                 <span className="text-stone-500">Layout options</span>
                 <span className="font-medium text-stone-900">
-                  {result.options.length}
+                  {result.options?.length ?? 0}
                 </span>
               </div>
               <div className="flex justify-between text-sm">
