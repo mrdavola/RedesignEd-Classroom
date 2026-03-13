@@ -1,7 +1,7 @@
 "use client";
 
+import Link from "next/link";
 import { BookOpen } from "lucide-react";
-import { Button } from "@/components/ui/button";
 
 export function Header() {
   return (
@@ -19,13 +19,13 @@ export function Header() {
       </div>
 
       <div>
-        <Button
-          variant="secondary"
-          onClick={() => console.log("Research Guide clicked")}
+        <Link
+          href="/learning-hub"
+          className="inline-flex items-center justify-center rounded-xl font-medium transition-colors bg-white border border-stone-200 text-stone-700 hover:bg-stone-50 px-4 py-2 text-base"
         >
           <BookOpen className="w-4 h-4 mr-2" />
           Research Guide
-        </Button>
+        </Link>
       </div>
     </header>
   );

@@ -104,7 +104,7 @@ interface SlideOverState {
 }
 
 export function StepResults() {
-  const { state, result, setResult, reset } = useWizard();
+  const { state, result, setResult, reset, goToStep } = useWizard();
   const [images, setImages] = useState<Record<number, string>>({});
   const [slideOver, setSlideOver] = useState<SlideOverState>({
     open: false,
@@ -288,13 +288,20 @@ export function StepResults() {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  // Loading state
+  // No results available — prompt user to go back and generate layouts
   if (!result || !result.options) {
     return (
-      <div className="space-y-6">
-        <Skeleton className="w-full h-48" />
-        <Skeleton className="w-full h-48" />
-        <Skeleton className="w-full h-48" />
+      <div className="flex flex-col items-center justify-center py-16 space-y-4 text-center">
+        <h2 className="text-xl font-semibold text-stone-900">
+          No layout results yet
+        </h2>
+        <p className="text-stone-500 text-sm max-w-md">
+          Complete the previous steps and generate research-backed layouts to see your redesign options here.
+        </p>
+        <Button onClick={() => goToStep(0)} className="mt-2">
+          <RotateCcw className="w-4 h-4 mr-2" />
+          Start from the beginning
+        </Button>
       </div>
     );
   }
