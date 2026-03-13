@@ -56,7 +56,9 @@ export function StepTeachingStyle() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(state),
       });
+      if (!res.ok) throw new Error("API error");
       const data: AnalysisResult = await res.json();
+      if (!data.options) throw new Error("Invalid response");
       setResult(data);
       nextStep();
     } catch {

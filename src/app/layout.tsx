@@ -6,7 +6,22 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Classroom Redesigner",
-  description: "Align physical space with pedagogical goals.",
+  description:
+    "Redesign your classroom with research, not guesswork. AI-powered, research-backed layout recommendations for educators.",
+  metadataBase: new URL("https://classroom-redesigner.vercel.app"),
+  openGraph: {
+    title: "Classroom Redesigner",
+    description:
+      "Redesign your classroom with research, not guesswork. AI-powered, research-backed layout recommendations for educators.",
+    siteName: "Classroom Redesigner",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Classroom Redesigner",
+    description:
+      "Redesign your classroom with research, not guesswork.",
+  },
 };
 
 export default function RootLayout({

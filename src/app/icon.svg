@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="96" fill="#be123c"/>
+  <g transform="translate(256,256)">
+    <!-- Desk/table shape -->
+    <rect x="-120" y="-20" width="240" height="16" rx="8" fill="white" opacity="0.95"/>
+    <!-- Left leg -->
+    <rect x="-110" y="-4" width="12" height="80" rx="4" fill="white" opacity="0.7"/>
+    <!-- Right leg -->
+    <rect x="98" y="-4" width="12" height="80" rx="4" fill="white" opacity="0.7"/>
+    <!-- Chair back -->
+    <rect x="-30" y="-110" width="60" height="70" rx="12" fill="white" opacity="0.85"/>
+    <!-- Chair seat -->
+    <rect x="-36" y="-44" width="72" height="14" rx="6" fill="white" opacity="0.75"/>
+    <!-- Pencil accent -->
+    <g transform="rotate(-30)">
+      <rect x="60" y="-100" width="8" height="60" rx="2" fill="#fbbf24"/>
+      <polygon points="60,-100 68,-100 64,-112" fill="#fbbf24"/>
+      <rect x="60" y="-44" width="8" height="8" rx="1" fill="#fde68a"/>
+    </g>
+  </g>
+</svg>

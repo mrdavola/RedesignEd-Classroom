@@ -289,7 +289,7 @@ export function StepResults() {
   };
 
   // Loading state
-  if (!result) {
+  if (!result || !result.options) {
     return (
       <div className="space-y-6">
         <Skeleton className="w-full h-48" />
