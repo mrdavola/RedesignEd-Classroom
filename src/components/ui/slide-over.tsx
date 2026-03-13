@@ -10,6 +10,7 @@ interface SlideOverProps {
   title: string;
   children: ReactNode;
   footer?: ReactNode;
+  size?: "default" | "wide";
 }
 
 export function SlideOver({
@@ -18,6 +19,7 @@ export function SlideOver({
   title,
   children,
   footer,
+  size = "default",
 }: SlideOverProps) {
   return (
     <AnimatePresence>
@@ -39,7 +41,7 @@ export function SlideOver({
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ type: "spring", damping: 30, stiffness: 300 }}
-            className="fixed inset-y-0 right-0 w-full max-w-lg bg-white shadow-xl z-50 flex flex-col"
+            className={`fixed inset-y-0 right-0 w-full ${size === "wide" ? "max-w-2xl" : "max-w-lg"} bg-white shadow-xl z-50 flex flex-col`}
           >
             {/* Header */}
             <div className="flex items-center justify-between px-6 py-4 border-b border-stone-200">
