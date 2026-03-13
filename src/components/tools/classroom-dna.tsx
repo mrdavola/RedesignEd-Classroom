@@ -10,13 +10,15 @@ interface ClassroomDnaViewProps {
 }
 
 export function ClassroomDnaView({ data }: ClassroomDnaViewProps) {
+  const arch = data.archetypes ?? { campfire: 0, wateringHole: 0, cave: 0 };
+  const sens = data.sensory ?? { stimulation: 0, predictability: 0, movementFreedom: 0 };
   const radarData = [
-    { axis: "Campfire", value: data.archetypes.campfire },
-    { axis: "Watering Hole", value: data.archetypes.wateringHole },
-    { axis: "Cave", value: data.archetypes.cave },
-    { axis: "Stimulation", value: data.sensory.stimulation },
-    { axis: "Predictability", value: data.sensory.predictability },
-    { axis: "Movement", value: data.sensory.movementFreedom },
+    { axis: "Campfire", value: arch.campfire ?? 0 },
+    { axis: "Watering Hole", value: arch.wateringHole ?? 0 },
+    { axis: "Cave", value: arch.cave ?? 0 },
+    { axis: "Stimulation", value: sens.stimulation ?? 0 },
+    { axis: "Predictability", value: sens.predictability ?? 0 },
+    { axis: "Movement", value: sens.movementFreedom ?? 0 },
   ];
 
   return (
