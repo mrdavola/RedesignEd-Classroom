@@ -5,6 +5,14 @@ import {
   buildGrantPrompt,
   buildLessonPrompt,
   buildNormsPrompt,
+  buildDnaPrompt,
+  buildPhilosopherCritiquePrompt,
+  buildMovementHeatmapPrompt,
+  buildBudgetOptimizerPrompt,
+  buildSeasonalCalendarPrompt,
+  buildPrincipalEmailPrompt,
+  buildSeatPerspectivePrompt,
+  buildSoundZonesPrompt,
   RESEARCH_CONTEXT,
 } from "@/lib/research/prompts";
 
@@ -102,4 +110,67 @@ export async function runTool(
   }
 
   return textBlock.text;
+}
+
+/**
+ * Runs a structured tool that returns parsed JSON, for creative analysis tools.
+ */
+export async function runStructuredTool<T>(
+  type: ToolType,
+  context: { layoutTitle: string; layoutContext: string; educator?: string },
+  state: WizardState,
+): Promise<T> {
+  const client = getClient();
+
+  let prompt: string;
+  switch (type) {
+    case "dna":
+      prompt = buildDnaPrompt(context.layoutTitle, context.layoutContext, state);
+      break;
+    case "philosopher-critique":
+      prompt = buildPhilosopherCritiquePrompt(
+        context.educator ?? "Maria Montessori",
+        context.layoutTitle,
+        context.layoutContext,
+        state,
+      );
+      break;
+    case "movement-heatmap":
+      prompt = buildMovementHeatmapPrompt(context.layoutTitle, context.layoutContext, state);
+      break;
+    case "budget-optimizer":
+      prompt = buildBudgetOptimizerPrompt(context.layoutTitle, context.layoutContext, state);
+      break;
+    case "seasonal-calendar":
+      prompt = buildSeasonalCalendarPrompt(context.layoutTitle, context.layoutContext, state);
+      break;
+    case "principal-email":
+      prompt = buildPrincipalEmailPrompt(context.layoutTitle, context.layoutContext, state);
+      break;
+    case "seat-perspective":
+      prompt = buildSeatPerspectivePrompt(context.layoutTitle, context.layoutContext, state);
+      break;
+    case "sound-zones":
+      prompt = buildSoundZonesPrompt(context.layoutTitle, context.layoutContext, state);
+      break;
+    default:
+      throw new Error(`Not a structured tool: ${type}`);
+  }
+
+  const response = await client.messages.create({
+    model: MODEL,
+    max_tokens: 4096,
+    messages: [{ role: "user", content: prompt }],
+  });
+
+  const textBlock = response.content.find((block) => block.type === "text");
+  if (!textBlock || textBlock.type !== "text") {
+    throw new Error("No text response from Claude");
+  }
+
+  const cleaned = textBlock.text
+    .replace(/```json\s*/g, "")
+    .replace(/```\s*/g, "")
+    .trim();
+  return JSON.parse(cleaned) as T;
 }
