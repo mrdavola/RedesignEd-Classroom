@@ -1,4 +1,4 @@
-import Anthropic from "@anthropic-ai/sdk";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import type { WizardState, AnalysisResult, ToolType } from "@/types";
 import {
   buildAnalysisPrompt,
@@ -16,68 +16,57 @@ import {
   RESEARCH_CONTEXT,
 } from "@/lib/research/prompts";
 
-const MODEL = "claude-sonnet-4-20250514";
+const MODEL = "gemini-2.5-flash-preview-05-20";
 
-function getClient() {
-  return new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+function getModel() {
+  const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+  return genAI.getGenerativeModel({ model: MODEL });
 }
 
 /**
- * Generates 3 classroom layout options using Claude, grounded in research.
+ * Generates 3 classroom layout options using Gemini, grounded in research.
  */
 export async function generateLayouts(
   state: WizardState,
 ): Promise<AnalysisResult> {
-  const client = getClient();
+  const model = getModel();
   const systemPrompt = buildAnalysisPrompt(state);
 
-  const userContent: Anthropic.MessageCreateParams["messages"][number]["content"] =
-    [];
+  const parts: (string | { inlineData: { mimeType: string; data: string } })[] = [];
 
   if (state.image) {
-    userContent.push({
-      type: "image",
-      source: {
-        type: "base64",
-        media_type: "image/jpeg",
-        data: state.image,
+    const rawBase64 = state.image.replace(/^data:image\/\w+;base64,/, "");
+    parts.push({
+      inlineData: {
+        mimeType: "image/jpeg",
+        data: rawBase64,
       },
     });
   }
 
-  userContent.push({
-    type: "text",
-    text: "Analyze the classroom context and generate 3 distinct zero-budget layout redesign options. Return valid JSON only.",
+  parts.push(
+    "Analyze the classroom context and generate 3 distinct zero-budget layout redesign options. Return valid JSON only.",
+  );
+
+  const result = await model.generateContent({
+    contents: [{ role: "user" as const, parts: parts.map(p => typeof p === "string" ? { text: p } : p) }],
+    systemInstruction: { role: "model" as const, parts: [{ text: `${systemPrompt}\n\n${RESEARCH_CONTEXT}` }] },
   });
 
-  const response = await client.messages.create({
-    model: MODEL,
-    max_tokens: 4096,
-    system: `${systemPrompt}\n\n${RESEARCH_CONTEXT}`,
-    messages: [{ role: "user", content: userContent }],
-  });
-
-  const textBlock = response.content.find((block) => block.type === "text");
-  if (!textBlock || textBlock.type !== "text") {
-    throw new Error("No text response from Claude");
-  }
-
-  const cleaned = textBlock.text
-    .replace(/```json\s*/g, "")
-    .replace(/```\s*/g, "")
-    .trim();
+  const text = result.response.text();
+  const cleaned = text.replace(/```json\s*/g, "").replace(/```\s*/g, "").trim();
   return JSON.parse(cleaned) as AnalysisResult;
 }
 
 /**
- * Runs a specialized tool (grant, lesson, or norms) using Claude.
+ * Runs a specialized tool (grant, lesson, or norms) using Gemini.
  */
 export async function runTool(
   type: ToolType,
   context: { layoutTitle: string; layoutContext: string; topic?: string },
   state: WizardState,
 ): Promise<string> {
-  const client = getClient();
+  const model = getModel();
 
   let prompt: string;
   switch (type) {
@@ -98,18 +87,8 @@ export async function runTool(
       throw new Error(`Unknown tool type: ${type}`);
   }
 
-  const response = await client.messages.create({
-    model: MODEL,
-    max_tokens: 4096,
-    messages: [{ role: "user", content: prompt }],
-  });
-
-  const textBlock = response.content.find((block) => block.type === "text");
-  if (!textBlock || textBlock.type !== "text") {
-    throw new Error("No text response from Claude");
-  }
-
-  return textBlock.text;
+  const result = await model.generateContent(prompt);
+  return result.response.text();
 }
 
 /**
@@ -120,7 +99,7 @@ export async function runStructuredTool<T>(
   context: { layoutTitle: string; layoutContext: string; educator?: string },
   state: WizardState,
 ): Promise<T> {
-  const client = getClient();
+  const model = getModel();
 
   let prompt: string;
   switch (type) {
@@ -157,20 +136,8 @@ export async function runStructuredTool<T>(
       throw new Error(`Not a structured tool: ${type}`);
   }
 
-  const response = await client.messages.create({
-    model: MODEL,
-    max_tokens: 4096,
-    messages: [{ role: "user", content: prompt }],
-  });
-
-  const textBlock = response.content.find((block) => block.type === "text");
-  if (!textBlock || textBlock.type !== "text") {
-    throw new Error("No text response from Claude");
-  }
-
-  const cleaned = textBlock.text
-    .replace(/```json\s*/g, "")
-    .replace(/```\s*/g, "")
-    .trim();
+  const result = await model.generateContent(prompt);
+  const text = result.response.text();
+  const cleaned = text.replace(/```json\s*/g, "").replace(/```\s*/g, "").trim();
   return JSON.parse(cleaned) as T;
 }
