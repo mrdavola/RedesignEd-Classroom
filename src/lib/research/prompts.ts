@@ -209,3 +209,425 @@ Create a comprehensive classroom management toolkit for the "${layoutTitle}" lay
 
 Format in clean markdown. Use teacher-friendly language that can be printed and posted.`;
 }
+
+// ---------------------------------------------------------------------------
+// Creative Tool Prompt Builders
+// ---------------------------------------------------------------------------
+
+/**
+ * Builds the prompt for generating a Classroom DNA profile.
+ */
+export function buildDnaPrompt(
+  layoutTitle: string,
+  layoutContext: string,
+  state: WizardState,
+): string {
+  return `You are an Educational Space Analyst who creates "Classroom DNA" profiles — a holistic fingerprint of how a classroom's physical design shapes learning. Ground your analysis in this research:
+
+${RESEARCH_CONTEXT}
+
+CONTEXT:
+- Layout Title: "${layoutTitle}"
+- Layout Details: ${layoutContext}
+- Learner Profile: ${state.learnerProfile}
+- Philosophy: ${state.philosophy}
+- Current Inventory: ${inventoryToString(state)}
+- Teacher Goals: ${state.goals || "None specified"}
+
+YOUR TASK:
+Analyze the classroom layout and generate a Classroom DNA profile. Score each dimension based on the layout details, inventory, and how well the space supports that dimension.
+
+Respond ONLY with valid JSON matching this structure:
+
+{
+  "archetypeScores": {
+    "campfire": <number 0-100>,
+    "wateringHole": <number 0-100>,
+    "cave": <number 0-100>,
+    "life": <number 0-100>
+  },
+  "sensoryScores": {
+    "visual": <number 0-100>,
+    "auditory": <number 0-100>,
+    "kinesthetic": <number 0-100>,
+    "proprioceptive": <number 0-100>
+  },
+  "philosophyAlignment": {
+    "montessori": <percentage 0-100>,
+    "reggioEmilia": <percentage 0-100>,
+    "socratic": <percentage 0-100>,
+    "flexible": <percentage 0-100>,
+    "steamMaker": <percentage 0-100>,
+    "inclusive": <percentage 0-100>
+  },
+  "personalityLabel": "<a 2-4 word personality label, e.g. 'The Curious Explorer' or 'The Structured Haven'>",
+  "summary": "<a 3-5 sentence narrative summary of this classroom's DNA, referencing specific research and explaining how the space shapes learning>"
+}
+
+Return raw JSON only -- no markdown fences.`;
+}
+
+/**
+ * Builds the prompt for generating a philosopher/educator critique.
+ */
+export function buildPhilosopherCritiquePrompt(
+  educator: string,
+  layoutTitle: string,
+  layoutContext: string,
+  state: WizardState,
+): string {
+  return `You are a historian and educational philosopher who channels the voices of great educators. You must write AS IF you are ${educator}, using their known pedagogical beliefs, writing style, and philosophical framework. Ground your analysis in this research:
+
+${RESEARCH_CONTEXT}
+
+CONTEXT:
+- Educator Persona: ${educator}
+- Layout Title: "${layoutTitle}"
+- Layout Details: ${layoutContext}
+- Learner Profile: ${state.learnerProfile}
+- Philosophy: ${state.philosophy}
+- Current Inventory: ${inventoryToString(state)}
+- Teacher Goals: ${state.goals || "None specified"}
+
+YOUR TASK:
+Write a critique of the "${layoutTitle}" classroom layout from the perspective of ${educator}. Stay true to their known beliefs, values, and rhetorical style. The critique should feel authentic — as if ${educator} walked into this classroom and shared their thoughts.
+
+Respond ONLY with valid JSON matching this structure:
+
+{
+  "educator": "${educator}",
+  "praise": "<1-2 paragraphs of what ${educator} would genuinely appreciate about this layout, grounded in their philosophy>",
+  "challenge": "<1-2 paragraphs of what ${educator} would critique or push back on, citing their core beliefs>",
+  "suggestion": "<1 paragraph of a specific, actionable change ${educator} would recommend, tied to their educational theory>",
+  "quote": "<a real or authentically paraphrased quote from ${educator} that is relevant to this classroom design>",
+  "quoteSource": "<the source of the quote — book title, lecture, or 'paraphrased from [work]'>"
+}
+
+Return raw JSON only -- no markdown fences.`;
+}
+
+/**
+ * Builds the prompt for generating a movement heatmap analysis.
+ */
+export function buildMovementHeatmapPrompt(
+  layoutTitle: string,
+  layoutContext: string,
+  state: WizardState,
+): string {
+  return `You are an Ergonomics and Spatial Flow Analyst specializing in classroom movement patterns. You study how teachers and students physically navigate learning spaces. Ground your analysis in this research:
+
+${RESEARCH_CONTEXT}
+
+CONTEXT:
+- Layout Title: "${layoutTitle}"
+- Layout Details: ${layoutContext}
+- Learner Profile: ${state.learnerProfile}
+- Philosophy: ${state.philosophy}
+- Current Inventory: ${inventoryToString(state)}
+- Teacher Goals: ${state.goals || "None specified"}
+
+YOUR TASK:
+Analyze the "${layoutTitle}" classroom layout and generate a detailed movement analysis. Model the classroom as a 10x10 grid where (0,0) is the top-left corner (front-left of the room facing the board) and (9,9) is the bottom-right (back-right).
+
+Consider:
+- Where furniture creates natural pathways and bottlenecks
+- How the teacher circulates during instruction vs. facilitation
+- How students move during transitions between Thornburg zones
+- Accessibility for students with mobility needs
+- The Lombard Effect risk in high-traffic convergence points
+
+Respond ONLY with valid JSON matching this structure:
+
+{
+  "grid": [
+    [<10 float values 0.0-1.0 representing movement intensity for row 0>],
+    [<10 float values for row 1>],
+    ... (10 rows total)
+  ],
+  "teacherPath": [
+    { "x": <number 0-9>, "y": <number 0-9>, "label": "<what teacher does at this point>" },
+    ... (6-10 waypoints describing typical teacher circulation)
+  ],
+  "studentFlows": [
+    { "fromX": <number>, "fromY": <number>, "toX": <number>, "toY": <number>, "label": "<transition description>" },
+    ... (3-5 major student movement vectors)
+  ],
+  "bottlenecks": [
+    { "x": <number>, "y": <number>, "severity": "<low|medium|high>", "description": "<what causes the bottleneck>", "fix": "<actionable solution>" },
+    ... (2-4 bottleneck areas)
+  ]
+}
+
+Return raw JSON only -- no markdown fences.`;
+}
+
+/**
+ * Builds the prompt for generating budget optimization recommendations.
+ */
+export function buildBudgetOptimizerPrompt(
+  layoutTitle: string,
+  layoutContext: string,
+  state: WizardState,
+): string {
+  return `You are an Educational Procurement Specialist who maximizes learning impact per dollar. You help teachers stretch small budgets into transformative classroom improvements. Ground your recommendations in this research:
+
+${RESEARCH_CONTEXT}
+
+CONTEXT:
+- Layout Title: "${layoutTitle}"
+- Layout Details: ${layoutContext}
+- Learner Profile: ${state.learnerProfile}
+- Philosophy: ${state.philosophy}
+- Current Inventory: ${inventoryToString(state)}
+- Teacher Goals: ${state.goals || "None specified"}
+- Budget: $200
+
+YOUR TASK:
+Given a $200 budget, recommend the highest-impact purchases to enhance the "${layoutTitle}" classroom layout. Prioritize items that:
+1. Fill gaps in Thornburg archetype coverage (if the layout is missing Cave space, prioritize that)
+2. Address sensory needs for ${state.learnerProfile} learners
+3. Have research-backed impact on learning outcomes
+4. Are durable and multi-purpose
+
+Be specific — include actual product types and realistic price estimates. Do NOT exceed $200 total.
+
+Respond ONLY with valid JSON matching this structure:
+
+{
+  "recommendations": [
+    {
+      "rank": <number 1-N>,
+      "item": "<specific product name/type, e.g. 'Felt desk dividers (set of 6)'>",
+      "cost": <number in dollars>,
+      "impactScore": <number 0-100>,
+      "rationale": "<2-3 sentences explaining why this item matters for this layout, referencing research>",
+      "researchSource": "<specific research citation supporting this recommendation>"
+    },
+    ... (5-8 items, total cost must not exceed $200)
+  ],
+  "summary": "<2-3 sentence overview of the budget strategy, explaining how these purchases work together to transform the space>"
+}
+
+Return raw JSON only -- no markdown fences.`;
+}
+
+/**
+ * Builds the prompt for generating a seasonal layout rotation calendar.
+ */
+export function buildSeasonalCalendarPrompt(
+  layoutTitle: string,
+  layoutContext: string,
+  state: WizardState,
+): string {
+  return `You are a Curriculum-Aligned Space Planner who helps teachers evolve their classroom layout throughout the school year. You understand that learning needs shift with the academic calendar. Ground your planning in this research:
+
+${RESEARCH_CONTEXT}
+
+CONTEXT:
+- Starting Layout: "${layoutTitle}"
+- Layout Details: ${layoutContext}
+- Learner Profile: ${state.learnerProfile}
+- Philosophy: ${state.philosophy}
+- Current Inventory: ${inventoryToString(state)}
+- Teacher Goals: ${state.goals || "None specified"}
+
+YOUR TASK:
+Design a year-long classroom layout rotation plan that evolves the "${layoutTitle}" layout through 4-5 seasonal phases. Each phase should reflect the natural rhythm of the school year:
+- Early fall: community building, establishing norms
+- Late fall: deepening academic rigor
+- Winter: assessment season, reflection
+- Spring: project-based learning, collaboration
+- Late spring: celebration, student-led learning
+
+Consider how ${state.learnerProfile} learners' needs change over the year and how the ${state.philosophy} philosophy can be progressively embodied in the space.
+
+Respond ONLY with valid JSON matching this structure:
+
+{
+  "phases": [
+    {
+      "startMonth": "<month name>",
+      "endMonth": "<month name>",
+      "focus": "<2-3 word phase name, e.g. 'Community Foundations'>",
+      "archetype": "<primary Thornburg archetype emphasized>",
+      "moves": [
+        "<specific furniture move or spatial change>",
+        ... (3-5 moves per phase)
+      ],
+      "rationale": "<2-3 sentences explaining why this configuration suits this time of year, referencing research>"
+    },
+    ... (4-5 phases covering the full school year)
+  ]
+}
+
+Return raw JSON only -- no markdown fences.`;
+}
+
+/**
+ * Builds the prompt for generating a professional email to a principal.
+ */
+export function buildPrincipalEmailPrompt(
+  layoutTitle: string,
+  layoutContext: string,
+  state: WizardState,
+): string {
+  return `You are a Professional Communication Coach for educators. You help teachers write compelling, research-backed emails to administrators that advocate for classroom improvements. Ground your writing in this research:
+
+${RESEARCH_CONTEXT}
+
+CONTEXT:
+- Layout Title: "${layoutTitle}"
+- Layout Details: ${layoutContext}
+- Learner Profile: ${state.learnerProfile}
+- Philosophy: ${state.philosophy}
+- Current Inventory: ${inventoryToString(state)}
+- Teacher Goals: ${state.goals || "None specified"}
+
+YOUR TASK:
+Write a professional email from a teacher to their principal, advocating for support in implementing the "${layoutTitle}" classroom layout. The email should:
+
+1. Be warm but professional — the tone of a confident, prepared educator
+2. Lead with student outcomes, not teacher preferences
+3. Cite specific research (Hattie effect sizes, peer proximity data, MIT TEAL results)
+4. Reference Thornburg archetypes in accessible language (no jargon without explanation)
+5. Include a clear ask — what specific support is needed (budget, time, permission)
+6. Be concise enough to actually get read (under 400 words for the body)
+
+Respond ONLY with valid JSON matching this structure:
+
+{
+  "subject": "<email subject line — compelling but professional>",
+  "body": "<full email body in markdown format, including greeting and sign-off>",
+  "citations": [
+    "<research citation referenced in the email>",
+    ... (3-5 citations)
+  ]
+}
+
+Return raw JSON only -- no markdown fences.`;
+}
+
+/**
+ * Builds the prompt for generating a seat-by-seat perspective analysis.
+ */
+export function buildSeatPerspectivePrompt(
+  layoutTitle: string,
+  layoutContext: string,
+  state: WizardState,
+): string {
+  return `You are a Universal Design for Learning (UDL) Specialist who analyzes classroom seating from the student's perspective. You evaluate every seat position for equity of access, sightlines, and sensory experience. Ground your analysis in this research:
+
+${RESEARCH_CONTEXT}
+
+CONTEXT:
+- Layout Title: "${layoutTitle}"
+- Layout Details: ${layoutContext}
+- Learner Profile: ${state.learnerProfile}
+- Philosophy: ${state.philosophy}
+- Current Inventory: ${inventoryToString(state)}
+- Teacher Goals: ${state.goals || "None specified"}
+
+YOUR TASK:
+Analyze the "${layoutTitle}" classroom layout on a 10x10 grid where (0,0) is the front-left of the room. For each seat position, evaluate what a student experiences — their sightlines, proximity to key zones, and sensory environment. Consider:
+
+- Sightline quality to the board/teacher position
+- Distance to Thornburg zones (Campfire, Watering Hole, Cave)
+- Proximity to doors, windows, and high-traffic areas
+- Sensory considerations for neurodiverse learners (the Sensory Paradox)
+- Peer proximity effects (the -9 points research)
+
+Respond ONLY with valid JSON matching this structure:
+
+{
+  "seats": [
+    {
+      "x": <number 0-9>,
+      "y": <number 0-9>,
+      "sightlines": {
+        "boardVisibility": "<excellent|good|fair|poor>",
+        "teacherVisibility": "<excellent|good|fair|poor>",
+        "obstructions": "<description of any visual obstructions or 'none'>"
+      },
+      "udlProfile": {
+        "bestFor": "<type of learner this seat best supports, e.g. 'Students needing minimal distraction'>",
+        "challenges": "<potential challenges for certain learners at this seat>",
+        "sensoryNotes": "<auditory, visual, or kinesthetic considerations>",
+        "nearestZone": "<closest Thornburg zone and distance>"
+      }
+    },
+    ... (include all seat positions in the layout, typically 8-30 seats)
+  ],
+  "roomFeatures": {
+    "boardPosition": { "x": <number>, "y": <number> },
+    "teacherHomeBase": { "x": <number>, "y": <number> },
+    "doorPosition": { "x": <number>, "y": <number> },
+    "windowWall": "<north|south|east|west|none>",
+    "quietestZone": { "x": <number>, "y": <number>, "description": "<why this is the quietest>" },
+    "highestTrafficZone": { "x": <number>, "y": <number>, "description": "<why this has most traffic>" }
+  }
+}
+
+Return raw JSON only -- no markdown fences.`;
+}
+
+/**
+ * Builds the prompt for generating an acoustic/sound zone analysis.
+ */
+export function buildSoundZonesPrompt(
+  layoutTitle: string,
+  layoutContext: string,
+  state: WizardState,
+): string {
+  return `You are a Classroom Acoustics Specialist who analyzes sound environments in learning spaces. You understand how noise levels affect cognition, focus, and inclusion — especially for neurodiverse learners. Ground your analysis in this research:
+
+${RESEARCH_CONTEXT}
+
+CONTEXT:
+- Layout Title: "${layoutTitle}"
+- Layout Details: ${layoutContext}
+- Learner Profile: ${state.learnerProfile}
+- Philosophy: ${state.philosophy}
+- Current Inventory: ${inventoryToString(state)}
+- Teacher Goals: ${state.goals || "None specified"}
+
+YOUR TASK:
+Analyze the "${layoutTitle}" classroom layout for acoustic properties and sound zone design. Consider:
+
+- How furniture placement creates natural sound barriers or amplifiers
+- The Lombard Effect risk — where escalating noise zones overlap
+- Sensory needs of ${state.learnerProfile} learners (reference the Sensory Paradox)
+- How different Thornburg zones require different noise levels (Cave = quiet, Watering Hole = moderate, Campfire = projected voice)
+- Practical, zero-budget sound interventions using existing inventory
+
+Respond ONLY with valid JSON matching this structure:
+
+{
+  "zones": [
+    {
+      "name": "<descriptive zone name, e.g. 'Reading Nook Cave'>",
+      "type": "<quiet|moderate|loud>",
+      "gridArea": { "fromX": <number 0-9>, "fromY": <number 0-9>, "toX": <number 0-9>, "toY": <number 0-9> },
+      "dbEstimate": <number — estimated decibel level during active use, e.g. 35-70>,
+      "archetype": "<Thornburg archetype this zone serves>",
+      "interventions": [
+        "<specific acoustic intervention, e.g. 'Place bookshelf perpendicular to wall as sound baffle'>",
+        ... (1-3 interventions per zone)
+      ]
+    },
+    ... (3-6 acoustic zones)
+  ],
+  "lombardRisks": [
+    {
+      "zone1": "<name of first zone>",
+      "zone2": "<name of second zone>",
+      "risk": "<low|medium|high>",
+      "description": "<how these zones might create escalating noise>",
+      "mitigation": "<specific fix to reduce Lombard Effect>"
+    },
+    ... (1-3 Lombard risks)
+  ],
+  "overallAssessment": "<3-4 sentence summary of the classroom's acoustic profile, noting strengths, vulnerabilities, and the single highest-priority intervention>"
+}
+
+Return raw JSON only -- no markdown fences.`;
+}
