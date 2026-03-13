@@ -16,7 +16,7 @@ import {
   RESEARCH_CONTEXT,
 } from "@/lib/research/prompts";
 
-const MODEL = "gemini-2.5-flash-preview-05-20";
+const MODEL = "gemini-2.5-flash";
 
 function getModel() {
   const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);

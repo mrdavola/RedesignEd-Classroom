@@ -11,7 +11,7 @@ export async function scanInventory(
 ): Promise<Partial<Inventory>> {
   const genAI = new GoogleGenerativeAI(apiKey);
   const model = genAI.getGenerativeModel({
-    model: "gemini-2.5-flash-preview-05-20",
+    model: "gemini-2.5-flash",
   });
 
   const prompt = `Analyze this classroom photo and count the visible furniture items.
