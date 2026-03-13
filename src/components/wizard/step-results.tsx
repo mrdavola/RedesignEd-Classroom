@@ -214,7 +214,7 @@ export function StepResults() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.15, duration: 0.4 }}
           >
-            <Card className="overflow-hidden">
+            <Card className="overflow-hidden" data-print-card>
               {/* Top bar */}
               <div className="flex items-center gap-3 px-6 py-3 border-b border-stone-100">
                 <span
@@ -342,7 +342,7 @@ export function StepResults() {
       })}
 
       {/* Footer */}
-      <div className="flex justify-between pt-4 pb-8">
+      <div className="flex justify-between pt-4 pb-8" data-print-hide>
         <Button variant="secondary" onClick={() => window.print()}>
           <Printer className="w-4 h-4 mr-2" />
           Print Report
