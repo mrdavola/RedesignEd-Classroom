@@ -25,9 +25,19 @@ export async function POST(req: NextRequest) {
 
     const { grade, month, subjects, layout, state, dna } = body;
 
-    if (!grade || !month || !subjects?.length || !layout || !state) {
+    // Validate required fields and allowlist grade/month/subjects
+    const validGrades: GradeLevel[] = ["K", "1", "2", "3", "4", "5"];
+    const validMonths: SchoolMonth[] = ["September", "October", "November", "December", "January", "February", "March", "April", "May", "June"];
+    const validSubjects: CurriculumSubject[] = ["Reading", "Writing", "Math", "Science", "Social Studies", "FUNdations"];
+
+    if (
+      !grade || !month || !subjects?.length || !layout || !state ||
+      !validGrades.includes(grade) ||
+      !validMonths.includes(month) ||
+      !subjects.every((s: CurriculumSubject) => validSubjects.includes(s))
+    ) {
       return NextResponse.json(
-        { error: "grade, month, subjects, layout, and state are required" },
+        { error: "Invalid or missing parameters" },
         { status: 400 },
       );
     }

@@ -21,8 +21,6 @@ import {
   type GradeLevel,
   type SchoolMonth,
   type CurriculumSubject,
-  type CurriculumUnit,
-  type StandardAlignment,
   type LayoutOption,
   type WizardState,
   type ClassroomDNA,

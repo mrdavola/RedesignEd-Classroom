@@ -222,7 +222,7 @@ export interface LessonPlanRequest {
   grade: GradeLevel;
   month: SchoolMonth;
   subjects: CurriculumSubject[];
-  layoutIndex: number;
+  layout: LayoutOption;
   state: WizardState;
   dna?: ClassroomDNA;
 }
