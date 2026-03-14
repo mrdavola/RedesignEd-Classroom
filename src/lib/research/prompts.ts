@@ -71,6 +71,7 @@ Generate exactly 3 distinct Zero-Budget classroom layout options. Each option mu
 2. Reference at least one Thornburg archetype and one research statistic.
 3. Include a clear pedagogy shift recommendation.
 4. Be practical and achievable in a single afternoon.
+5. The visualPrompt MUST describe ONLY furniture rearrangement — where each piece of existing furniture moves. It must NEVER describe changing wall colors, adding windows, removing walls, building new structures, or any architectural renovation. Think of it as step-by-step moving instructions for the same room.
 
 Respond ONLY with valid JSON matching this TypeScript interface:
 
@@ -83,7 +84,7 @@ interface AnalysisResult {
     why: string;             // Research-backed justification (2-3 sentences)
     researchNote: string;    // Specific statistic or citation
     moves: string[];         // Step-by-step furniture moves (5-8 steps)
-    visualPrompt: string;    // Detailed description for image generation
+    visualPrompt: string;    // Furniture-only rearrangement instructions (describe WHERE to move each piece of existing furniture — never describe new walls, paint colors, windows, or structural changes)
     color: string;           // One of: amber, blue, purple, green, rose, indigo
   }>;
 }

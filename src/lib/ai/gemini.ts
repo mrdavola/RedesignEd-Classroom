@@ -71,13 +71,43 @@ export async function generateRoomImage(
     if (base64Image) {
       const rawBase64 = base64Image.replace(/^data:image\/\w+;base64,/, "");
       contents.push(
-        `Redesign this classroom based on the following description. Generate a photorealistic image:\n\n${prompt}`,
         {
           inlineData: {
             mimeType: "image/jpeg",
             data: rawBase64,
           },
         },
+        `You are an interior-decorator camera. Your job is to REARRANGE FURNITURE ONLY inside the existing room shown in the photo above.
+
+STRICT ARCHITECTURAL LOCK — DO NOT CHANGE:
+- The room's physical boundaries, dimensions, shape, and square footage
+- Wall colors, textures, and materials exactly as they appear
+- Ceiling height, type, and any ceiling fixtures (lights, fans, tiles)
+- Flooring type, color, and pattern
+- All windows: size, position, frame style, and what is visible outside
+- All doors: size, position, and style
+- Whiteboards, smartboards, bulletin boards: exact size and wall placement
+- Built-in shelving, cabinets, sinks, or any fixed architectural element
+- Electrical outlets, light switches, and HVAC vents
+
+WHAT YOU MAY CHANGE (furniture rearrangement only):
+- Position and grouping of movable desks, tables, and chairs
+- Rug and carpet placement on the floor
+- Movable shelving units and storage bins
+- Easels, mobile carts, and freestanding furniture
+- How furniture is clustered into learning zones
+
+RENDERING RULES:
+- Maintain the EXACT camera angle and perspective of the source photo
+- Match the lighting conditions (natural/artificial) of the original
+- Keep the same photographic style and color temperature
+- The output must look like someone physically moved furniture in the SAME room, not a different room
+- Do NOT add furniture that is not described — only reposition what exists
+- Do NOT remove walls, add windows, change paint colors, or renovate the space
+- Do NOT generate a completely new room or building
+
+FURNITURE REARRANGEMENT INSTRUCTIONS:
+${prompt}`,
       );
     } else {
       contents.push(prompt);
