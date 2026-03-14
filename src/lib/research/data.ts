@@ -188,3 +188,107 @@ export const learnerProfiles: LearnerProfileInfo[] = [
   { id: "Adult Learners", label: "Adult Learners" },
   { id: "Custom", label: "Custom" },
 ];
+
+// ---------------------------------------------------------------------------
+// Portrait of a Graduate Competencies
+// ---------------------------------------------------------------------------
+
+export interface GraduateCompetency {
+  title: string;
+  description: string;
+  spatialImplication: string;
+  color: string;
+}
+
+export const graduateCompetencies: GraduateCompetency[] = [
+  {
+    title: "Academically Prepared",
+    description:
+      "Demonstrates a strong foundation in the NYS learning standards and is equipped with the knowledge and skills necessary to achieve success in college, careers, civic engagement, service, and life.",
+    spatialImplication:
+      "Dedicated instructional zones with clear sightlines to teaching surfaces and organized, accessible reference materials.",
+    color: "blue",
+  },
+  {
+    title: "Effective Communicator",
+    description:
+      "Articulates ideas clearly and confidently through speaking, writing, and the use of different types of media for various purposes, while engaging with diverse audiences and actively listening to different perspectives.",
+    spatialImplication:
+      "Watering Hole clusters for peer discourse, Campfire areas with presentation space, and documentation walls displaying student communication.",
+    color: "amber",
+  },
+  {
+    title: "Creative Innovator",
+    description:
+      "Utilizes imagination, curiosity, and flexible thinking to solve problems creatively, and develop new ideas and products, while adapting to evolving circumstances and challenges.",
+    spatialImplication:
+      "Life/maker zones with reconfigurable furniture, loose-parts stations, and prototyping areas with accessible materials.",
+    color: "green",
+  },
+  {
+    title: "Global Citizen",
+    description:
+      "Acts responsibly and ethically within local, global, and digital communities, employing civic knowledge, skills, and mindsets to promote global sustainability and contribute positively to a culturally diverse, democratic society.",
+    spatialImplication:
+      "Community gathering spaces, global and cultural displays, and collaborative project areas that mirror real-world civic engagement.",
+    color: "indigo",
+  },
+  {
+    title: "Critical Thinker",
+    description:
+      "Analyzes information thoughtfully, evaluates evidence critically, and identifies patterns and connections between different pieces of information across multiple content areas to address complex issues and navigate the world with insight.",
+    spatialImplication:
+      "Multi-source reference stations, Socratic circle arrangements, and visible thinking routine displays near collaborative zones.",
+    color: "purple",
+  },
+  {
+    title: "Reflective and Future Focused",
+    description:
+      "Engages in self-reflection to identify strengths and areas for growth, sets meaningful goals, uses social awareness to maintain supportive relationships, and demonstrates responsible decision-making that prioritizes social, emotional, and mental well-being.",
+    spatialImplication:
+      "Cave spaces for individual reflection, SEL/peace corners, goal-setting displays, and quiet retreat areas.",
+    color: "rose",
+  },
+];
+
+// ---------------------------------------------------------------------------
+// Cognitive Science Principles
+// ---------------------------------------------------------------------------
+
+export interface CognitivePrinciple {
+  title: string;
+  source: string;
+  description: string;
+  designImplication: string;
+  color: string;
+}
+
+export const cognitivePrinciples: CognitivePrinciple[] = [
+  {
+    title: "Extraneous Cognitive Load",
+    source: "Sweller, Cognitive Load Theory",
+    description:
+      "Cognitive effort wasted on processing irrelevant stimuli — visual clutter, competing focal points, outdated displays, glare, and disorganized layouts all consume working memory that should be devoted to learning.",
+    designImplication:
+      "Keep wall coverage under 50%. Ensure one clear focal point in the primary instructional sightline. Remove outdated or decorative-only displays.",
+    color: "rose",
+  },
+  {
+    title: "Working Memory Capacity",
+    source: "Miller (1956), Cowan (2001)",
+    description:
+      "Students can hold only 3-5 chunks of information in working memory at once (fewer for younger learners: 2-3 for K-2). Every competing visual element in a student's field of view consumes a chunk.",
+    designImplication:
+      "Limit distinct visual information units in the primary sightline to 3-5 (2-3 for early elementary). Group wall content into clear visual clusters to reduce effective chunk count.",
+    color: "amber",
+  },
+  {
+    title: "Spotlighting over Visual Overload",
+    source: "Harvard Project Zero; Fisher et al. (2014)",
+    description:
+      "Selective, intentional display of current learning content (spotlighting) outperforms environments where every surface is covered. Students in highly decorated rooms spend 38% of time off-task vs. 28% in intentionally sparse rooms.",
+    designImplication:
+      "Display selectively: 60%+ of content should connect to active learning. Prioritize student-generated work over commercial posters. Maintain 30-40% intentional negative space on walls.",
+    color: "blue",
+  },
+];

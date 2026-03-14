@@ -1,10 +1,13 @@
 import type { WizardState } from "@/types";
+import { PORTRAIT_OF_GRADUATE } from "./portrait-of-graduate";
+import { COGNITIVE_SCIENCE_CONTEXT } from "./cognitive-science";
+import { getCurriculumContext } from "./curriculum-hub";
 
 // ---------------------------------------------------------------------------
 // Research Context (embedded in every prompt)
 // ---------------------------------------------------------------------------
 
-export const RESEARCH_CONTEXT = `EDUCATIONAL RESEARCH FRAMEWORK (MANDATORY REFERENCE):
+const EXISTING_RESEARCH = `EDUCATIONAL RESEARCH FRAMEWORK (MANDATORY REFERENCE):
 1. THORNBURG'S ARCHETYPES:
    - The Campfire: Space for instruction (One-to-many).
    - The Watering Hole: Space for social discourse (Many-to-many).
@@ -26,6 +29,8 @@ export const RESEARCH_CONTEXT = `EDUCATIONAL RESEARCH FRAMEWORK (MANDATORY REFER
    - Required Shift: Teachers must become "Guides on the Side" or facilitators.
 
 5. ROSAN BOSCH PRINCIPLES: Design explicitly dictates behavior. (Mountain Top, Cave, Campfire).`;
+
+export const RESEARCH_CONTEXT = [EXISTING_RESEARCH, PORTRAIT_OF_GRADUATE, COGNITIVE_SCIENCE_CONTEXT].join("\n\n");
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -64,6 +69,7 @@ TEACHER CONTEXT:
 - Current Inventory: ${inventoryToString(state)}
 - Goals / Constraints: ${state.goals || "None specified"}
 ${state.image ? "- A photo of the current classroom has been provided for visual analysis." : "- No classroom photo was provided."}
+- Current Curriculum: ${getCurriculumContext(state.learnerProfile)}
 
 YOUR TASK:
 Generate exactly 3 distinct Zero-Budget classroom layout options. Each option must:
@@ -111,6 +117,7 @@ CONTEXT:
 - Philosophy: ${state.philosophy}
 - Current Inventory: ${inventoryToString(state)}
 - Teacher Goals: ${state.goals || "None specified"}
+- Current Curriculum: ${getCurriculumContext(state.learnerProfile)}
 
 YOUR TASK:
 Write a compelling grant proposal (500-800 words) for funding to enhance the "${layoutTitle}" classroom layout. The proposal should:
@@ -143,6 +150,7 @@ CONTEXT:
 - Learner Profile: ${state.learnerProfile}
 - Philosophy: ${state.philosophy}
 - Available Furniture: ${inventoryToString(state)}
+- Current Curriculum: ${getCurriculumContext(state.learnerProfile)}
 
 YOUR TASK:
 Create a detailed lesson plan for "${topic}" that deliberately uses the "${layoutTitle}" classroom layout. The plan should:
@@ -177,6 +185,7 @@ CONTEXT:
 - Philosophy: ${state.philosophy}
 - Available Furniture: ${inventoryToString(state)}
 - Teacher Goals: ${state.goals || "None specified"}
+- Current Curriculum: ${getCurriculumContext(state.learnerProfile)}
 
 YOUR TASK:
 Create a comprehensive classroom management toolkit for the "${layoutTitle}" layout. Include:
@@ -234,6 +243,7 @@ CONTEXT:
 - Philosophy: ${state.philosophy}
 - Current Inventory: ${inventoryToString(state)}
 - Teacher Goals: ${state.goals || "None specified"}
+- Current Curriculum: ${getCurriculumContext(state.learnerProfile)}
 
 YOUR TASK:
 Analyze the classroom layout and generate a Classroom DNA profile. Score each dimension based on the layout details, inventory, and how well the space supports that dimension.
@@ -289,6 +299,7 @@ CONTEXT:
 - Philosophy: ${state.philosophy}
 - Current Inventory: ${inventoryToString(state)}
 - Teacher Goals: ${state.goals || "None specified"}
+- Current Curriculum: ${getCurriculumContext(state.learnerProfile)}
 
 YOUR TASK:
 Write a critique of the "${layoutTitle}" classroom layout from the perspective of ${educator}. Stay true to their known beliefs, values, and rhetorical style. The critique should feel authentic — as if ${educator} walked into this classroom and shared their thoughts.
@@ -326,6 +337,7 @@ CONTEXT:
 - Philosophy: ${state.philosophy}
 - Current Inventory: ${inventoryToString(state)}
 - Teacher Goals: ${state.goals || "None specified"}
+- Current Curriculum: ${getCurriculumContext(state.learnerProfile)}
 
 YOUR TASK:
 Analyze the "${layoutTitle}" classroom layout and generate a detailed movement analysis. Model the classroom as a 10x10 grid where (0,0) is the top-left corner (front-left of the room facing the board) and (9,9) is the bottom-right (back-right).
@@ -381,6 +393,7 @@ CONTEXT:
 - Philosophy: ${state.philosophy}
 - Current Inventory: ${inventoryToString(state)}
 - Teacher Goals: ${state.goals || "None specified"}
+- Current Curriculum: ${getCurriculumContext(state.learnerProfile)}
 - Budget: $200
 
 YOUR TASK:
@@ -431,6 +444,7 @@ CONTEXT:
 - Philosophy: ${state.philosophy}
 - Current Inventory: ${inventoryToString(state)}
 - Teacher Goals: ${state.goals || "None specified"}
+- Current Curriculum: ${getCurriculumContext(state.learnerProfile)}
 
 YOUR TASK:
 Design a year-long classroom layout rotation plan that evolves the "${layoutTitle}" layout through 4-5 seasonal phases. Each phase should reflect the natural rhythm of the school year:
@@ -483,6 +497,7 @@ CONTEXT:
 - Philosophy: ${state.philosophy}
 - Current Inventory: ${inventoryToString(state)}
 - Teacher Goals: ${state.goals || "None specified"}
+- Current Curriculum: ${getCurriculumContext(state.learnerProfile)}
 
 YOUR TASK:
 Write a professional email from a teacher to their principal, advocating for support in implementing the "${layoutTitle}" classroom layout. The email should:
@@ -527,6 +542,7 @@ CONTEXT:
 - Philosophy: ${state.philosophy}
 - Current Inventory: ${inventoryToString(state)}
 - Teacher Goals: ${state.goals || "None specified"}
+- Current Curriculum: ${getCurriculumContext(state.learnerProfile)}
 
 YOUR TASK:
 Analyze the "${layoutTitle}" classroom layout on a 10x10 grid where (0,0) is the front-left of the room. For each seat position, evaluate what a student experiences — their sightlines, proximity to key zones, and sensory environment. Consider:
@@ -590,6 +606,7 @@ CONTEXT:
 - Philosophy: ${state.philosophy}
 - Current Inventory: ${inventoryToString(state)}
 - Teacher Goals: ${state.goals || "None specified"}
+- Current Curriculum: ${getCurriculumContext(state.learnerProfile)}
 
 YOUR TASK:
 Analyze the "${layoutTitle}" classroom layout for acoustic properties and sound zone design. Consider:
