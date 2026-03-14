@@ -1,4 +1,4 @@
-import type { WizardState } from "@/types";
+import type { WizardState, CurriculumUnit, StandardAlignment, ClassroomDNA, LayoutOption } from "@/types";
 import { PORTRAIT_OF_GRADUATE } from "./portrait-of-graduate";
 import { COGNITIVE_SCIENCE_CONTEXT } from "./cognitive-science";
 import { getCurriculumContext } from "./curriculum-hub";
@@ -648,4 +648,115 @@ Respond ONLY with valid JSON matching this structure:
 }
 
 Return raw JSON only -- no markdown fences.`;
+}
+
+/**
+ * Builds an enriched lesson plan prompt combining layout, curriculum,
+ * standards alignment, and physical space choreography.
+ */
+export function buildCurriculumLessonPrompt(params: {
+  layout: LayoutOption;
+  units: CurriculumUnit[];
+  standards: StandardAlignment[];
+  state: WizardState;
+  dna?: ClassroomDNA;
+}): string {
+  const { layout, units, standards, state, dna } = params;
+
+  const unitsBlock = units
+    .map((u) => `- ${u.subject}: ${u.unitName}${u.resourceUrl ? ` [Resource](${u.resourceUrl})` : ""}`)
+    .join("\n");
+
+  const standardsBlock = standards.length > 0
+    ? standards
+        .map((s) => {
+          let block = `- ${s.standardCode}: ${s.standardStatement}`;
+          if (s.learningComponents.length > 0) {
+            block += `\n  Learning Components: ${s.learningComponents.join(", ")}`;
+          }
+          if (s.progression) {
+            block += `\n  Progression: ${s.progression}`;
+          }
+          return block;
+        })
+        .join("\n")
+    : "No formal standards alignment available — use curriculum unit objectives.";
+
+  const dnaBlock = dna
+    ? `CLASSROOM DNA:
+- Archetype Scores: Campfire ${dna.archetypes.campfire}/100, Watering Hole ${dna.archetypes.wateringHole}/100, Cave ${dna.archetypes.cave}/100
+- Sensory Profile: Stimulation ${dna.sensory.stimulation}/100, Predictability ${dna.sensory.predictability}/100, Movement Freedom ${dna.sensory.movementFreedom}/100
+- Personality: ${dna.personality}
+- Summary: ${dna.summary}`
+    : "";
+
+  return `You are a Curriculum-Aligned Space Choreographer. You design lesson plans that explicitly map instructional sequences to physical classroom zones and furniture. Every minute of the lesson has a WHERE (zone), a WHAT (learning activity), and a HOW (physical arrangement).
+
+${RESEARCH_CONTEXT}
+
+CLASSROOM LAYOUT:
+- Layout Title: "${layout.title}"
+- Primary Archetype: ${layout.archetype}
+- Pedagogy Shift: ${layout.pedagogyShift}
+- Research Rationale: ${layout.why}
+- Implementation Moves: ${layout.moves.join("; ")}
+
+${dnaBlock}
+
+TEACHER CONTEXT:
+- Learner Profile: ${state.learnerProfile}
+- Teaching Philosophy: ${state.philosophy}
+- Available Furniture: ${inventoryToString(state)}
+- Goals: ${state.goals || "None specified"}
+
+ACTIVE CURRICULUM UNITS:
+${unitsBlock}
+
+ALIGNED STANDARDS:
+${standardsBlock}
+
+YOUR TASK:
+Generate a detailed, classroom-ready lesson plan with these exact sections:
+
+## 1. Lesson Overview
+- Title, grade level, estimated duration (30-60 min depending on grade)
+- Which curriculum unit(s) this lesson addresses
+- Which standards are addressed (list codes)
+
+## 2. Space Activation Map
+For each Thornburg zone used in this layout, describe:
+- Zone name and where it is in the room
+- What learning happens there
+- When during the lesson it is activated (approximate minute range)
+
+## 3. Transition Choreography
+For EACH transition between zones, provide TWO levels of detail:
+**Zone Level:** "Students move from [Zone A] to [Zone B]" with timing
+**Furniture Level:** Specific furniture moves using the actual inventory (e.g., "4 students push their desks together to form a cluster near the kidney table" or "Students bring their chairs to the carpet area")
+**Teacher Position:** Where the teacher stands/moves during this transition
+**Time:** How many minutes the transition takes
+
+## 4. Learning Sequence
+Map the actual curriculum content to each zone:
+- **Campfire Phase** (direct instruction): Mini-lesson content aligned to the unit objectives
+- **Watering Hole Phase** (collaborative): Peer work activity tied to learning components from the standards
+- **Cave Phase** (independent): Reflection or assessment activity
+- **Life Phase** (application): Extension activity if the layout supports it
+Include specific student-facing instructions for each phase.
+
+## 5. Standards Alignment Notes
+- Which standard is addressed in which zone
+- How the physical arrangement supports the standard's learning components
+- Vertical context: what students learned before (prior grade) and what comes next
+
+## 6. Differentiation & Sensory Notes
+- How the layout supports diverse learners (reference the Sensory Paradox)
+- Specific accommodations using the room's zones (e.g., "Students who need reduced stimulation can work in the Cave zone near the bookshelf barrier")
+- Movement break integration points
+
+## 7. Materials & Curriculum Links
+- Materials needed for each phase
+- Links to curriculum resources (include the Google Docs URLs from the curriculum units)
+
+Format in clean markdown with clear headings. Be specific about furniture, timing, and physical movement. A teacher should be able to print this and follow it step by step.`;
 }
