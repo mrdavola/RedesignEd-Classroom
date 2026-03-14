@@ -35,6 +35,7 @@ import { SeasonalCalendarView } from "@/components/tools/seasonal-calendar";
 import { PrincipalEmailView } from "@/components/tools/principal-email";
 import { SeatPerspectiveView } from "@/components/tools/seat-perspective";
 import { SoundZonesView } from "@/components/tools/sound-zones";
+import { LessonPlanAdapter } from "@/components/tools/lesson-plan-adapter";
 import type {
   ToolType,
   LayoutOption,
@@ -493,6 +494,14 @@ export function StepResults() {
                     </Button>
                   </motion.div>
                 )}
+              </div>
+
+              {/* Curriculum-Aligned Lesson Plan Adapter */}
+              <div className="px-6 pb-6">
+                <LessonPlanAdapter
+                  layout={option}
+                  state={state}
+                />
               </div>
             </Card>
           </motion.div>
