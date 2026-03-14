@@ -121,6 +121,7 @@ export function StepResults() {
   const [lessonPromptIndex, setLessonPromptIndex] = useState<number | null>(null);
   const [selectedEducator, setSelectedEducator] = useState("Maria Montessori");
   const [educatorPromptIndex, setEducatorPromptIndex] = useState<number | null>(null);
+  const [dnaData, setDnaData] = useState<ClassroomDNA | null>(null);
 
   // Generate images for each option
   useEffect(() => {
@@ -198,6 +199,9 @@ export function StepResults() {
 
         if (STRUCTURED_TOOLS.includes(type)) {
           setToolData(json.data);
+          if (type === "dna") {
+            setDnaData(json.data as ClassroomDNA);
+          }
         } else {
           setToolContent(json.content ?? json.result ?? "No content returned.");
         }
@@ -501,6 +505,7 @@ export function StepResults() {
                 <LessonPlanAdapter
                   layout={option}
                   state={state}
+                  dna={dnaData ?? undefined}
                 />
               </div>
             </Card>
