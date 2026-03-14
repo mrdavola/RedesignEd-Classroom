@@ -183,3 +183,52 @@ export interface SoundZonesData {
   }>;
   overallAssessment: string;
 }
+
+// Curriculum & Lesson Plan Adapter types
+
+export type GradeLevel = "K" | "1" | "2" | "3" | "4" | "5";
+
+export type CurriculumSubject =
+  | "Reading"
+  | "Writing"
+  | "Math"
+  | "Science"
+  | "Social Studies"
+  | "FUNdations";
+
+export const MONTHS = [
+  "September", "October", "November", "December", "January",
+  "February", "March", "April", "May", "June",
+] as const;
+
+export type SchoolMonth = (typeof MONTHS)[number];
+
+export interface CurriculumUnit {
+  grade: GradeLevel;
+  month: SchoolMonth;
+  subject: CurriculumSubject;
+  unitName: string;
+  resourceUrl?: string;
+}
+
+export interface StandardAlignment {
+  standardCode: string;
+  standardStatement: string;
+  learningComponents: string[];
+  progression?: string;
+}
+
+export interface LessonPlanRequest {
+  grade: GradeLevel;
+  month: SchoolMonth;
+  subjects: CurriculumSubject[];
+  layoutIndex: number;
+  state: WizardState;
+  dna?: ClassroomDNA;
+}
+
+export interface LessonPlanResponse {
+  lessonPlan: string;
+  units: CurriculumUnit[];
+  standards: StandardAlignment[];
+}
